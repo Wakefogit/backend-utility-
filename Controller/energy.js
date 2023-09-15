@@ -4,6 +4,7 @@ const moment = require("moment-timezone");
 exports.getTodayZone1Energy = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
+    console.log("this is test line")
  console.log("backend is loading",startDate,endDate);
     const endDates = new Date(endDate);
 
