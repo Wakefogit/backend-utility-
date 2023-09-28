@@ -4,8 +4,7 @@ const moment = require("moment-timezone");
 exports.getTodayZone1Energy = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
-    console.log("this is test line")
- console.log("backend is loading",startDate,endDate);
+    
     const endDates = new Date(endDate);
 
     // Get the current date and time as a Date object
@@ -30,24 +29,24 @@ exports.getTodayZone1Energy = async (req, res, next) => {
       "0"
     )}Z`;
 
-    const selectedDate = new Date(startDate);
+    // const selectedDate = new Date(startDate);
 
-    // Adjust for the time zone offset
-    selectedDate.setMinutes(
-      selectedDate.getMinutes() - selectedDate.getTimezoneOffset()
-    );
+    // // Adjust for the time zone offset
+    // selectedDate.setMinutes(
+    //   selectedDate.getMinutes() - selectedDate.getTimezoneOffset()
+    // );
 
-    // Set the time to midnight for the selected date
-    selectedDate.setUTCHours(0, 0, 0, 0);
+    // // Set the time to midnight for the selected date
+    // selectedDate.setUTCHours(0, 0, 0);
 
-    // Format the date string manually as "yyyy-mm-ddTHH:MM:SSZ"
-    const year = selectedDate.getUTCFullYear();
-    const month = String(selectedDate.getUTCMonth() + 1).padStart(2, "0"); // Month is zero-based
-    const day = String(selectedDate.getUTCDate()).padStart(2, "0");
-    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
-      2,
-      "0"
-    )}T00:00:00Z`;
+    // // Format the date string manually as "yyyy-mm-ddTHH:MM:SSZ"
+    // const year = selectedDate.getUTCFullYear();
+    // const month = String(selectedDate.getUTCMonth() + 1).padStart(2, "0"); // Month is zero-based
+    // const day = String(selectedDate.getUTCDate()).padStart(2, "0");
+    // const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
+    //   2,
+    //   "0"
+    // )}T00:00:00Z`;
 
     // const stopTime = moment().subtract(5, "hours").subtract(30, "minutes").format("YYYY-MM-DDTHH:mm:ss[Z]");
     // const localTimeZoneOffsetHours = 5; // Replace with your local offset
@@ -77,8 +76,8 @@ exports.getTodayZone1Energy = async (req, res, next) => {
       measurementNames.map((measurement) => {
         const fluxQuery = `
         from(bucket: "bindhu")
-          |> range(start: time(v: "${formattedDate}"), stop: time(v: "${combinedTimestamp}"))
-          |> filter(fn: (r) => r["_measurement"] == "${measurement}")
+          |> range(start: time(v: "${startDate}"), stop: time(v: "${combinedTimestamp}"))
+          |> filter(fn: (r) => r["_measurement"] == "EM_4")
           |> filter(fn: (r) => r["_field"] == "KWH")
           |> aggregateWindow(every: 1h, fn: last, createEmpty: false)
       `;
@@ -86,6 +85,7 @@ exports.getTodayZone1Energy = async (req, res, next) => {
           .getQueryApi(org)
           .collectRows(fluxQuery)
           .then((rows) => {
+            // console.log(rows,"this is rows")
             const latestValue = rows[rows.length - 1]._value;
             // console.log(latestValue,"######values")
             const firstValue = rows[0]._value;
@@ -129,7 +129,7 @@ exports.getTodayZone1Energy = async (req, res, next) => {
 exports.getTodayZone2Energy = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
-    // console.log("backend is loading",startDate,endDate);
+    
     const endDates = new Date(endDate);
 
     // Get the current date and time as a Date object
@@ -193,7 +193,7 @@ exports.getTodayZone2Energy = async (req, res, next) => {
       measurementNames.map((measurement) => {
         const fluxQuery = `
         from(bucket: "bindhu")
-          |> range(start: time(v: "${formattedDate}"), stop: time(v: "${combinedTimestamp}"))
+          |> range(start: time(v: "${startDate}"), stop: time(v: "${combinedTimestamp}"))
           |> filter(fn: (r) => r["_measurement"] == "${measurement}")
           |> filter(fn: (r) => r["_field"] == "KWH")
           |> aggregateWindow(every: 1h, fn: last, createEmpty: false)
@@ -246,7 +246,8 @@ exports.getTodayZone2Energy = async (req, res, next) => {
 exports.get1WeekHeatMap = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
-    console.log(startDate, endDate);
+    console.log(startDate, endDate,"this is week heatmap date");
+
     const endDates = new Date(endDate);
 
     // Get the current date and time as a Date object
@@ -289,12 +290,12 @@ exports.get1WeekHeatMap = async (req, res, next) => {
       2,
       "0"
     )}T00:00:00Z`;
-    console.log(formattedDate, combinedTimestamp, "this is formateed dates");
+    // console.log(formattedDate, combinedTimestamp, "this is formateed dates");
 
     const fluxQueryToday = `
     from(bucket: "bindhu")
 
-    |> range(start: time(v: "${formattedDate}"), stop: time(v: "${combinedTimestamp}"))
+    |> range(start: time(v: "${startDate}"), stop: time(v: "${combinedTimestamp}"))
     
     |> filter(fn: (r) => r["_measurement"] == "EM_12")
     
