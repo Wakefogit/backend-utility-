@@ -25,7 +25,7 @@ app.use(electricityRoute);
 User.belongsTo(Role, { foreignKey: "roleId" });
 Role.hasMany(User, { foreignKey: "roleId" });
 sequelize
-  .sync({ force: true }) // Use { force: true } during development to drop and recreate tables
+  .sync() // Use { force: true } during development to drop and recreate tables
   .then(() => {
     console.log("Database & tables created!");
   })
